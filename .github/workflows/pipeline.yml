@@ -1,0 +1,31 @@
+
+name: MLFlow @ Hugging Face
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - app/*
+
+jobs:
+    deploy:      
+      name: Deploy App
+      runs-on: ubuntu-latest
+      environment: prod
+
+      env:
+        MLFLOW_TRACKING_PASSWORD: ${{secrets.MLFLOW_TRACKING_PASSWORD}}
+        MLFLOW_TRACKING_USERNAME: ${{secrets.MLFLOW_TRACKING_USERNAME}}
+        MLFLOW_MYSQL_CONN: ${{secrets.MLFLOW_MYSQL_CONN}}
+        MLFLOW_MYSQL_CA: ${{secrets.MLFLOW_MYSQL_CA}}
+        HF_TOKEN: ${{ secrets.HUGGING_FACE_API_KEY }}
+        HF_REPO: ${{ vars.HF_REPO }}
+
+      steps:
+        - uses: actions/checkout@v4
+
+        - name: Install dependencies
+          run: pip install --no-cache-dir --upgrade huggingface_hub==0.34.3
+
+        - name: Deploy MLFlow
+          run: python ./deploy-app.py
